@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/bcrypt"
@@ -11,7 +12,10 @@ import (
 var DB *sql.DB
 
 func InitDB() {
-	dsn := "root:@tcp(127.0.0.1:3306)/gossip_db"
+	dsn := os.Getenv("DB_URL")
+	if dsn == "" {
+		dsn = "root:@tcp(127.0.0.1:3306)/gossip_db"
+	}
 	var err error
 	DB, err = sql.Open("mysql", dsn)
 	if err != nil {
