@@ -470,7 +470,7 @@ func main() {
 	fs := http.FileServer(http.Dir("./uploads"))
 	http.Handle("/uploads/", http.StripPrefix("/uploads/", fs))
 
-	fmt.Println("Backend Server running at http://localhost:8080")
+	fmt.Println("Backend Server running at https://gossip-with-go-n9z1.onrender.com")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		fmt.Printf("Server failed: %s\n", err)

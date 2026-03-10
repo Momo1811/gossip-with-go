@@ -40,7 +40,7 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
 
   const fetchComments = () => {
-    axios.get(`http://localhost:8080/api/get-comments?post_id=${postId}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/get-comments?post_id=${postId}`)
       .then(res => setComments(res.data || []));
   };
 
@@ -50,7 +50,7 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
 
   const handleAddComment = () => {
     if (!newComment || !loggedInUser) return;
-    axios.get(`http://localhost:8080/api/add-comment?post_id=${postId}&author=${loggedInUser}&content=${newComment}&parent_id=${replyingTo}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/add-comment?post_id=${postId}&author=${loggedInUser}&content=${newComment}&parent_id=${replyingTo}`)
     .then(() => {
       setNewComment("");
       setReplyingTo(null); 
@@ -60,14 +60,14 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
 
   const handleDeleteComment = (commentId: number) => {
     if (window.confirm("Confirm Deletion?")) {
-      axios.get(`http://localhost:8080/api/delete-comment?id=${commentId}&username=${loggedInUser}`)
+      axios.get(`https://gossip-with-go-n9z1.onrender.com/api/delete-comment?id=${commentId}&username=${loggedInUser}`)
         .then(() => fetchComments())
         .catch(err => alert(err.response.data));
     }
   };
 
   const handleSaveEditComment = (id: number) => {
-    axios.get(`http://localhost:8080/api/edit-comment?id=${id}&content=${editCommentContent}&username=${loggedInUser}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/edit-comment?id=${id}&content=${editCommentContent}&username=${loggedInUser}`)
       .then(() => {
         setEditingCommentId(null); 
         fetchComments(); 
@@ -76,7 +76,7 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
   };
 
   const handlePinComment = (commentId: number) => {
-    axios.get(`http://localhost:8080/api/pin-comment?id=${commentId}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/pin-comment?id=${commentId}`)
       .then(() => fetchComments())
       .catch(err => console.log(err));
   };
@@ -84,7 +84,7 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
   const handleLikeComment = (commentId: number) => {
       if (!loggedInUser) return alert("Login First");
 
-      axios.get(`http://localhost:8080/api/like-comment?id=${commentId}&username=${loggedInUser}`)
+      axios.get(`https://gossip-with-go-n9z1.onrender.com/api/like-comment?id=${commentId}&username=${loggedInUser}`)
         .then(() => {
             fetchComments();
         })
@@ -256,7 +256,7 @@ const RegisterPage = () => {
   const navigate = useNavigate(); 
 
   const handleRegister = () => {
-    axios.get(`http://localhost:8080/api/register?username=${username}&password=${password}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/register?username=${username}&password=${password}`)
       .then(() => {
         alert("Register Successful!");
         navigate("/login");
@@ -290,7 +290,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    axios.get(`http://localhost:8080/api/login?username=${username}&password=${password}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/login?username=${username}&password=${password}`)
       .then(res => {
         const { token, username } = res.data; 
         
@@ -334,7 +334,7 @@ const Home = () => {
   const loggedInUser = localStorage.getItem("username");
 
   const fetchTopics = () => {
-    axios.get('http://localhost:8080/api/topics')
+    axios.get('https://gossip-with-go-n9z1.onrender.com/api/topics')
       .then(res => { 
         setTopics(res.data); 
         setLoading(false); 
@@ -345,7 +345,7 @@ const Home = () => {
 
   const handleAddTopic = () => {
     if (!newTopic) return;
-    axios.get(`http://localhost:8080/api/add-topic?name=${newTopic}&author=${loggedInUser}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/add-topic?name=${newTopic}&author=${loggedInUser}`)
       .then(() => { setNewTopic(""); fetchTopics(); });
   };
 
@@ -353,14 +353,14 @@ const Home = () => {
   const handleEditTopic = (id: number, currentName: string) => {
       const newName = prompt("Update your topic name", currentName);
       if (newName && newName !== currentName) {
-        axios.get(`http://localhost:8080/api/edit-topic?id=${id}&name=${newName}&username=${loggedInUser}`)
+        axios.get(`https://gossip-with-go-n9z1.onrender.com/api/edit-topic?id=${id}&name=${newName}&username=${loggedInUser}`)
           .then(() => {setTopics(prev => prev.map(t=>t.id===id?{...t,name:newName}:t));})
           .catch(err=>console.log(err.response.data));
       }
     };
   const handleDeleteTopic = (id: number) => {
     if (window.confirm("Confirm deletion? This will also delete all posts within this topic.!")) {
-      axios.get(`http://localhost:8080/api/delete-topic?id=${id}&username=${loggedInUser}`)
+      axios.get(`https://gossip-with-go-n9z1.onrender.com/api/delete-topic?id=${id}&username=${loggedInUser}`)
         .then(() => {
           setTopics(prevTopics => prevTopics.filter(t => t.id !== id));
         });
@@ -467,7 +467,7 @@ const PostList = () => {
 
   const fetchPosts = () => {
     setLoading(true);
-    axios.get(`http://localhost:8080/api/get-posts?topic_id=${id}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/get-posts?topic_id=${id}`)
       .then(res => {
         setPosts(res.data || []);
         setLoading(false);
@@ -494,7 +494,7 @@ const PostList = () => {
         formData.append("image", selectedFile);
     }
 
-    axios.post("http://localhost:8080/api/add-post", formData, {
+    axios.post("https://gossip-with-go-n9z1.onrender.com/api/add-post", formData, {
         headers: { "Content-Type": "multipart/form-data" }
     })
     .then(() => {
@@ -509,7 +509,7 @@ const PostList = () => {
   const handleDeletePost = (postId: number) => {
     const loggedInUser = localStorage.getItem("username");
     if (window.confirm("Are you sure you want to delete this post?")) {
-      axios.get(`http://localhost:8080/api/delete-post?id=${postId}&username=${loggedInUser}`)
+      axios.get(`https://gossip-with-go-n9z1.onrender.com/api/delete-post?id=${postId}&username=${loggedInUser}`)
       .then(() => {
         alert("Post deleted!");
         fetchPosts(); 
@@ -528,7 +528,7 @@ const PostList = () => {
 
   const handleSaveEdit = (postId: number) => {
     const loggedInUser = localStorage.getItem("username");
-    axios.get(`http://localhost:8080/api/edit-post?id=${postId}&title=${editTitle}&content=${editContent}&username=${loggedInUser}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/edit-post?id=${postId}&title=${editTitle}&content=${editContent}&username=${loggedInUser}`)
     .then(() => {
       setEditingId(null);
       fetchPosts();
@@ -543,7 +543,7 @@ const PostList = () => {
   const handleLike = (postId: number) => {
     const loggedInUser = localStorage.getItem("username"); 
     if (!loggedInUser) return alert("Please login to like this post");
-    axios.get(`http://localhost:8080/api/like-post?id=${postId}&username=${loggedInUser}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/like-post?id=${postId}&username=${loggedInUser}`)
       .then(() => {
         fetchPosts(); 
       })
@@ -559,7 +559,7 @@ const PostList = () => {
       return;
     }
 
-    axios.get(`http://localhost:8080/api/dislike-post?id=${postId}&username=${loggedInUser}`)
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/dislike-post?id=${postId}&username=${loggedInUser}`)
       .then((res) => {
         console.log(res.data); 
         fetchPosts(); 
@@ -573,7 +573,7 @@ const PostList = () => {
   const handleShare = (post: any) => {
       const caption = window.prompt("Write a caption for your share:", "Check this out!");
       if (caption !== null) {
-          axios.get(`http://localhost:8080/api/share-post?id=${post.id}`)
+          axios.get(`https://gossip-with-go-n9z1.onrender.com/api/share-post?id=${post.id}`)
               .then(() => {
                   alert(`Shared with caption: ${caption}`);
                   fetchPosts();
@@ -635,7 +635,7 @@ const PostList = () => {
                         {post.image_url && (
                           <Box sx={{ mt: 2, mb: 2 }}>
                             <img 
-                              src={`http://localhost:8080${post.image_url}`} 
+                              src={`https://gossip-with-go-n9z1.onrender.com${post.image_url}`} 
                               alt="post image" 
                               style={{ 
                                 maxWidth: '100%', 
