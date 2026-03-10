@@ -362,12 +362,12 @@ const Home = () => {
     if (window.confirm("Confirm deletion? This will also delete all posts within this topic.!")) {
       axios.get(`https://gossip-with-go-n9z1.onrender.com/api/delete-topic?id=${id}&username=${loggedInUser}`)
         .then(() => {
-          setTopics(prevTopics => (prevTopics || [])(t => t.id !== id));
+          setTopics(prevTopics => (prevTopics || []).filter(t => t.id !== id));
         });
     }
   };
 
-  const filteredTopics = topics(topic => 
+  const filteredTopics = (topics || []).filter(topic => 
     (topic.name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
