@@ -170,11 +170,35 @@ func main() {
 	})
 
 	// Get Cmts API
-	http.HandleFunc("/api/get-comments", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/add-comment", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		postID, _ := strconv.Atoi(r.URL.Query().Get("post_id"))
-		comments, _ := GetComments(postID)
-		json.NewEncoder(w).Encode(comments)
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		var data struct {
+			PostID   int    `json:"post_id"`
+			Author   string `json:"author"`
+			Content  string `json:"content"`
+			ParentID *int   `json:"parent_id"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			http.Error(w, "JSON error: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err := AddComment(data.PostID, data.Author, data.Content, data.ParentID)
+		if err != nil {
+			fmt.Println("Database Error:", err)
+			http.Error(w, "DB error: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprint(w, "Comment added")
 	})
 
 	//Delete cmt
