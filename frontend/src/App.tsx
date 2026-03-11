@@ -41,7 +41,8 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
 
   const fetchComments = () => {
     axios.get(`https://gossip-with-go-n9z1.onrender.com/api/get-comments?post_id=${postId}`)
-      .then(res => setComments(res.data || []));
+      .then(res => setComments(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setComments([]));
   };
 
   useEffect(() => {
@@ -50,7 +51,8 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
 
   const handleAddComment = () => {
     if (!newComment || !loggedInUser) return;
-    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/add-comment?post_id=${postId}&author=${loggedInUser}&content=${newComment}&parent_id=${replyingTo}`)
+    const pId =replyingTo ? replyingTo :0 ;
+    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/add-comment?post_id=${postId}&author=${loggedInUser}&content=${newComment}&parent_id=${pId}`)
     .then(() => {
       setNewComment("");
       setReplyingTo(null); 
@@ -99,7 +101,7 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
 
       {show && (
         <Box sx={{ mt: 2, display:'block'}}>
-          {comments.map((c: any) => {
+          {(comments || []).map((c: any) => {
             const isOwner = loggedInUser === c.author;
             const isEditing = editingCommentId === c.id;
 

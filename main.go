@@ -152,9 +152,12 @@ func main() {
 		author := r.URL.Query().Get("author")
 		content := r.URL.Query().Get("content")
 		parentIDStr := r.URL.Query().Get("parent_id")
-		var parentID any
-		if parentIDStr != "" && parentIDStr != "null" {
-			parentID, _ = strconv.Atoi(parentIDStr)
+		var parentID *int
+		if parentIDStr != "" && parentIDStr != "null" && parentIDStr != "0" {
+			val, err := strconv.Atoi(parentIDStr)
+			if err == nil {
+				parentID = &val
+			}
 		} else {
 			parentID = nil
 		}
