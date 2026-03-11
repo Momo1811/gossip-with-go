@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -148,30 +149,6 @@ func main() {
 	// Add Cmt API
 	http.HandleFunc("/api/add-comment", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		postID, _ := strconv.Atoi(r.URL.Query().Get("post_id"))
-		author := r.URL.Query().Get("author")
-		content := r.URL.Query().Get("content")
-		parentIDStr := r.URL.Query().Get("parent_id")
-		var parentID *int
-		if parentIDStr != "" && parentIDStr != "null" && parentIDStr != "0" {
-			val, err := strconv.Atoi(parentIDStr)
-			if err == nil {
-				parentID = &val
-			}
-		} else {
-			parentID = nil
-		}
-		err := AddComment(postID, author, content, parentID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		fmt.Fprint(w, "Comment added")
-	})
-
-	// Get Cmts API
-	http.HandleFunc("/api/add-comment", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
@@ -190,15 +167,22 @@ func main() {
 			http.Error(w, "JSON error: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		err := AddComment(data.PostID, data.Author, data.Content, data.ParentID)
 		if err != nil {
-			fmt.Println("Database Error:", err)
+			log.Println("Database Error:", err)
 			http.Error(w, "DB error: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(w, "Comment added")
+	})
+
+	// Get Cmts API
+	http.HandleFunc("/api/get-comments", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		postID, _ := strconv.Atoi(r.URL.Query().Get("post_id"))
+		comments, _ := GetComments(postID)
+		json.NewEncoder(w).Encode(comments)
 	})
 
 	//Delete cmt
