@@ -51,13 +51,21 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
 
   const handleAddComment = () => {
     if (!newComment || !loggedInUser) return;
-    const pId =replyingTo ? replyingTo :0 ;
-    axios.get(`https://gossip-with-go-n9z1.onrender.com/api/add-comment?post_id=${postId}&author=${loggedInUser}&content=${newComment}&parent_id=${pId}`)
+    
+    const pId = replyingTo ? replyingTo : 0;
+
+    axios.post(`https://gossip-with-go-n9z1.onrender.com/api/add-comment`, {
+      post_id: Number(postId),
+      author: loggedInUser,
+      content: newComment,
+      parent_id: pId
+    })
     .then(() => {
       setNewComment("");
       setReplyingTo(null); 
       fetchComments();
-    });
+    })
+    .catch(err => console.error("Error:", err));
   };
 
   const handleDeleteComment = (commentId: number) => {
