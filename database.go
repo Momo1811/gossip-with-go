@@ -15,6 +15,7 @@ func InitDB() {
 	dsn := os.Getenv("DB_URL")
 	if dsn == "" {
 		dsn = "root:@tcp(127.0.0.1:3306)/gossip_db"
+
 	}
 	var err error
 	DB, err = sql.Open("mysql", dsn)
@@ -72,6 +73,45 @@ func createTables() {
 	_, err = DB.Exec(queryUsers)
 	if err != nil {
 		fmt.Println("Error creating users table:", err)
+	}
+
+	commentQuery := `CREATE TABLE IF NOT EXISTS comments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        post_id INT NOT NULL,
+        author VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        parent_id INT DEFAULT 0,
+        likes INT DEFAULT 0,
+        is_pinned BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+    );`
+
+	_, err = DB.Exec(commentQuery)
+	if err != nil {
+		fmt.Println("Error creating comments table:", err)
+	}
+
+	queryPostLikes := `CREATE TABLE IF NOT EXISTS post_likes (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		post_id INT,
+		username VARCHAR(255),
+		UNIQUE KEY unique_post_like (post_id, username)
+	)`
+	_, err = DB.Exec(queryPostLikes)
+	if err != nil {
+		fmt.Println("Error creating post_likes table:", err)
+	}
+
+	queryPostDislikes := `CREATE TABLE IF NOT EXISTS post_dislikes (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		post_id INT,
+		username VARCHAR(255),
+		UNIQUE KEY unique_dislike (post_id, username)
+	)`
+	_, err = DB.Exec(queryPostDislikes)
+	if err != nil {
+		fmt.Println("Error creating post_dislikes table:", err)
 	}
 }
 
