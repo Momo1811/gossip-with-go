@@ -93,15 +93,16 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
 
   const handleLikeComment = (commentId: number) => {
     if (!loggedInUser) return alert("Login First");
-
+    console.log("Sending Like for ID:",commentId)
     axios.post(`https://gossip-with-go-n9z1.onrender.com/api/like-comment`, {
-        id: commentId,
-        username: loggedInUser
+        id: Number(commentId),
+        username: String(loggedInUser)
     })
       .then(() => {
+          console.log("Like success",res.data)
           fetchComments(); 
       })
-      .catch(err => console.error("Like Error:", err));
+      .catch(err => console.error("Like Error:", err.response?.data));
   };
 
   return (
