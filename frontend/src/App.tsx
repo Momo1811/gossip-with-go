@@ -287,10 +287,10 @@ const RegisterPage = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
           <TextField label="Username" variant="outlined" fullWidth onChange={(e) => setUsername(e.target.value)} />
           <TextField label="Password" type="password" variant="outlined" fullWidth onChange={(e) => setPassword(e.target.value)} />
-          <Button variant="contained" size="large" onClick={handleRegister} sx={{ mt: 2 }}>
+          <Button variant="contained" size="large" onClick={handleRegister} sx={{ mb: 4, bgcolor: '#c13ab8' }}>
             Register
           </Button>
-          <Typography variant="body2">
+          <Typography variant="body2" >
             Already have an account? <Link to="/login">Login </Link>
           </Typography>
         </Box>
@@ -327,7 +327,7 @@ const LoginPage = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
           <TextField label="Username" variant="outlined" fullWidth onChange={(e) => setUsername(e.target.value)} />
           <TextField label="Password" type="password" variant="outlined" fullWidth onChange={(e) => setPassword(e.target.value)} />
-          <Button variant="contained" color="success" size="large" onClick={handleLogin} sx={{ mt: 2 }}>
+          <Button variant="contained" color="success" size="large" onClick={handleLogin} sx={{ mb: 4, bgcolor: '#c13ab8' }}>
             Login
           </Button>
           <Typography variant="body2">

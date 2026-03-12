@@ -247,35 +247,41 @@ func main() {
 			return
 		}
 
-		type LikeRequest struct {
-			ID       int    `json:"id"`
-			Username string `json:"username"`
-		}
-
-		var data LikeRequest
-		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-			http.Error(w, "Decode Error", http.StatusBadRequest)
+		var requestData map[string]interface{}
+		if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+			http.Error(w, "JSON Decode Error", http.StatusBadRequest)
 			return
 		}
 
-		if data.ID <= 0 || data.Username == "" {
-			http.Error(w, "Missing id or username", http.StatusBadRequest)
+		commentIDFloat, ok1 := requestData["id"].(float64)
+		username, ok2 := requestData["username"].(string)
+
+		if !ok1 || !ok2 {
+			http.Error(w, "Missing id or username in request", http.StatusBadRequest)
 			return
 		}
+
+		commentID := int(commentIDFloat)
 
 		var exists bool
-		err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment_likes WHERE comment_id = ? AND username = ?)", data.ID, data.Username).Scan(&exists)
+		err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment_likes WHERE comment_id = ? AND username = ?)", commentID, username).Scan(&exists)
+		if err != nil {
+			fmt.Println("Check Existence Error:", err)
+			http.Error(w, "Database Check Error", http.StatusInternalServerError)
+			return
+		}
 
 		if exists {
-			_, err = DB.Exec("DELETE FROM comment_likes WHERE comment_id = ? AND username = ?", data.ID, data.Username)
-			DB.Exec("UPDATE comments SET likes = GREATEST(0, likes - 1) WHERE id = ?", data.ID)
+			_, err = DB.Exec("DELETE FROM comment_likes WHERE comment_id = ? AND username = ?", commentID, username)
+			_, err = DB.Exec("UPDATE comments SET likes = CASE WHEN likes > 0 THEN likes - 1 ELSE 0 END WHERE id = ?", commentID)
 		} else {
-			_, err = DB.Exec("INSERT INTO comment_likes (comment_id, username) VALUES (?, ?)", data.ID, data.Username)
-			DB.Exec("UPDATE comments SET likes = likes + 1 WHERE id = ?", data.ID)
+			_, err = DB.Exec("INSERT INTO comment_likes (comment_id, username) VALUES (?, ?)", commentID, username)
+			_, err = DB.Exec("UPDATE comments SET likes = likes + 1 WHERE id = ?", commentID)
 		}
 
 		if err != nil {
-			http.Error(w, "Database Action Failed", http.StatusInternalServerError)
+			fmt.Println("Action Failed Error:", err)
+			http.Error(w, "Action Failed", http.StatusInternalServerError)
 			return
 		}
 

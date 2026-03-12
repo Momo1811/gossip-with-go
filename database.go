@@ -113,6 +113,19 @@ func createTables() {
 	if err != nil {
 		fmt.Println("Error creating post_dislikes table:", err)
 	}
+
+	queryCommentLikes := `CREATE TABLE IF NOT EXISTS comment_likes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        comment_id INT,
+        username VARCHAR(255),
+        UNIQUE KEY unique_comment_like (comment_id, username)
+    )`
+	_, err = DB.Exec(queryCommentLikes)
+	if err != nil {
+		fmt.Println("Error creating comment_likes table:", err)
+	} else {
+		fmt.Println("Comment Likes table is ready!")
+	}
 }
 
 // AddTopic
