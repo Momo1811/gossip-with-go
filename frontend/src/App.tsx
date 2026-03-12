@@ -92,13 +92,16 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
   };
 
   const handleLikeComment = (commentId: number) => {
-      if (!loggedInUser) return alert("Login First");
+    if (!loggedInUser) return alert("Login First");
 
-      axios.get(`https://gossip-with-go-n9z1.onrender.com/api/like-comment?id=${commentId}&username=${loggedInUser}`)
-        .then(() => {
-            fetchComments();
-        })
-        .catch(err => console.error(err));
+    axios.post(`https://gossip-with-go-n9z1.onrender.com/api/like-comment`, {
+        id: commentId,
+        username: loggedInUser
+    })
+      .then(() => {
+          fetchComments(); 
+      })
+      .catch(err => console.error("Like Error:", err));
   };
 
   return (
