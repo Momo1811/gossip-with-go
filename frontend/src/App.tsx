@@ -99,7 +99,6 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
         username: String(loggedInUser)
     })
       .then(() => {
-          console.log("Like success",res.data)
           fetchComments(); 
       })
       .catch(err => console.error("Like Error:", err.response?.data));
