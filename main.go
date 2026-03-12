@@ -240,46 +240,42 @@ func main() {
 	//like cmt
 	http.HandleFunc("/api/like-comment", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		if r.Method == "OPTIONS" {
 			return
 		}
 
-		query := r.URL.Query()
-		idStr := query.Get("id")
-		username := query.Get("username")
+		type LikeRequest struct {
+			ID       int    `json:"id"`
+			Username string `json:"username"`
+		}
 
-		if idStr == "" || username == "" {
+		var data LikeRequest
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			http.Error(w, "Decode Error", http.StatusBadRequest)
+			return
+		}
+
+		if data.ID <= 0 || data.Username == "" {
 			http.Error(w, "Missing id or username", http.StatusBadRequest)
 			return
 		}
 
-		commentID, err := strconv.Atoi(idStr)
-		fmt.Printf("Attempting to like Comment ID: %d by User: %s\n", commentID, username)
-		if err != nil {
-			http.Error(w, "Invalid ID format", http.StatusBadRequest)
-			return
-		}
-
 		var exists bool
-		err = DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment_likes WHERE comment_id = ? AND username = ?)", commentID, username).Scan(&exists)
-		if err != nil {
-			http.Error(w, "Database error", http.StatusInternalServerError)
-			return
-		}
+		err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM comment_likes WHERE comment_id = ? AND username = ?)", data.ID, data.Username).Scan(&exists)
 
 		if exists {
-			_, err = DB.Exec("DELETE FROM comment_likes WHERE comment_id = ? AND username = ?", commentID, username)
-			DB.Exec("UPDATE comments SET likes = GREATEST(0, likes - 1) WHERE id = ?", commentID)
+			_, err = DB.Exec("DELETE FROM comment_likes WHERE comment_id = ? AND username = ?", data.ID, data.Username)
+			DB.Exec("UPDATE comments SET likes = GREATEST(0, likes - 1) WHERE id = ?", data.ID)
 		} else {
-			_, err = DB.Exec("INSERT INTO comment_likes (comment_id, username) VALUES (?, ?)", commentID, username)
-			DB.Exec("UPDATE comments SET likes = likes + 1 WHERE id = ?", commentID)
+			_, err = DB.Exec("INSERT INTO comment_likes (comment_id, username) VALUES (?, ?)", data.ID, data.Username)
+			DB.Exec("UPDATE comments SET likes = likes + 1 WHERE id = ?", data.ID)
 		}
 
 		if err != nil {
-			http.Error(w, "Action failed", http.StatusInternalServerError)
+			http.Error(w, "Database Action Failed", http.StatusInternalServerError)
 			return
 		}
 

@@ -92,6 +92,9 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
   };
 
   const handleLikeComment = (commentId: number) => {
+    console.log("Check ID:",commentId);
+    console.log("Check user:",loggedInUser);
+
     if (!loggedInUser) return alert("Login First");
     console.log("Sending Like for ID:",commentId)
     axios.post(`https://gossip-with-go-n9z1.onrender.com/api/like-comment`, {
@@ -101,7 +104,7 @@ const CommentSection = ({ postId, postAuthor }: { postId: number, postAuthor: st
       .then(() => {
           fetchComments(); 
       })
-      .catch(err => console.error("Like Error:", err.response?.data));
+      .catch(err => console.error("Like Error:", err.response?.data || err.message));
   };
 
   return (
